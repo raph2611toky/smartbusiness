@@ -20,3 +20,5 @@ __pycache__/
 
 .env
 helpers/services/google/client_secret.json
+statics/*
+staticfiles/*

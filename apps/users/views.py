@@ -33,7 +33,7 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        tags=['Users'],
+        tags=['Admin'],
         security=[{'Bearer': []}],
         responses={
             200: UserSerializer(),
@@ -72,7 +72,7 @@ class ProfileUpdateView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     @swagger_auto_schema(
-        tags=['Users'],
+        tags=['Admin'],
         security=[{'Bearer': []}],
         request_body=UserSerializer,
         responses={
@@ -108,7 +108,7 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        tags=['Users'],
+        tags=['Admin'],
         security=[{'Bearer': []}],
         responses={
             200: openapi.Response(
@@ -162,7 +162,7 @@ class ResendOTPVerificationView(APIView):
             return False
 
     @swagger_auto_schema(
-        tags=['Users'],
+        tags=['Admin'],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             required=['email'],
@@ -246,6 +246,7 @@ class UserVerifyOtpView(APIView):
         operation_description="Vérifier le code OTP pour activer le compte utilisateur",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            tags=['Admin'],
             required=["email", "code_otp"],
             properties={
                 "email": openapi.Schema(type=openapi.TYPE_STRING, example="utilisateur@exemple.com"),
@@ -294,7 +295,7 @@ class UserVerifyOtpView(APIView):
                 )
             )
         },
-        tags=["Users"]
+        tags=['Admin'],
     )
     def post(self, request):
         try:
@@ -371,7 +372,7 @@ class UserMotDePasseOublieView(APIView):
                 )
             )
         },
-        tags=["Users"]
+        tags=['Admin'],
     )
     def post(self, request):
         try:
@@ -444,7 +445,7 @@ class UserResetPasswordView(APIView):
                 )
             )
         },
-        tags=["Users"]
+        tags=["Admin"]
     )
     def post(self, request):
         try:

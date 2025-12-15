@@ -13,7 +13,7 @@ IP_ADDR, PORT = get_server_settings()# "127.0.0.1",8000
 
 SECRET_KEY = 'r4ph43l!s3cr3t_.sp(v70*_=3r58j^bpe7gitr7j((!hev&b17h=8ssdm8#$^cv6d'
 
-DEBUG = True
+DEBUG = False
 
 handler404 = 'config.views.custom_404'
 
@@ -21,7 +21,6 @@ ALLOWED_HOSTS = [IP_ADDR, '127.0.0.1', 'localhost']
 
 LOCAL_APPS = [
     'apps.users.apps.UsersConfig',
-    'apps.chatbot.apps.ChatbotConfig',
 ]
 
 THIRD_APPS = [
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'drf_yasg',
     'django_extensions',
+    'whitenoise',
 ]
 
 MIDDLEWARE = [

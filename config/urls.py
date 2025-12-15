@@ -9,9 +9,9 @@ from django.conf.urls.static import static
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Safe AI",
+        title="Smart Business",
         default_version='v1',
-        description="API pour Safe AI",
+        description="API pour Smart Business",
         terms_of_service="#",
         contact=openapi.Contact(email="contact@monapi.local"),
         license=openapi.License(name="BSD License"),

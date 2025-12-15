@@ -28,14 +28,6 @@ class Command(BaseCommand):
                 "is_staff": True
             },
             {
-                "nom_complet": "tayab94609",
-                "email": "tayab94609@cexch.com",
-                "sexe": "M",
-                "password": "tayab94609",
-                "date_naissance": datetime.strptime("2005-11-26", "%Y-%m-%d"),
-                "is_staff": False
-            },
-            {
                 "nom_complet": "Razanaparany Jennysca",
                 "email": "jennyscaladydi@gmail.com",
                 "sexe": "F",
