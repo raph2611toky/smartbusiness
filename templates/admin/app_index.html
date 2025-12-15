@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }}{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; {% for app in app_list %}{{ app.verbose_name|default:app.name }}{% endfor %}
+</nav>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<div id="content-main" class="dashboard">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle">Gestion des données {{ title }}</p>
+    </div>
+
+    {% for app in app_list %}
+    <div class="data-card">
+        <div class="data-card-header">
+            <div>
+                <h2 class="data-card-title">{{ app.verbose_name|default:app.name }}</h2>
+            </div>
+        </div>
+        <div class="data-card-content">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {% for model in app.models %}
+                <div class="model-square-card border border-border-color rounded-md overflow-hidden">
+                    <div class="model-square-header p-3 bg-sidebar-bg border-b border-border-color">
+                        <h4 class="text-sm font-medium truncate">{{ model.name }}</h4>
+                    </div>
+                    <div class="model-square-actions p-3 flex justify-center space-x-4">
+                        {% if model.add_url %}
+                        <a href="{{ model.add_url }}" class="action-btn add-btn" title="Ajouter">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                        {% endif %}
+                        {% if model.admin_url %}
+                        <a href="{{ model.admin_url }}" class="action-btn view-btn" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

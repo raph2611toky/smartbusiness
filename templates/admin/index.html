@@ -1,0 +1,195 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static log %}
+
+{% block content %}
+<div id="content-main" class="dashboard">
+    <div class="page-header">
+        <h1 class="page-title">Tableau de bord</h1>
+        <p class="page-subtitle">Bienvenue dans l'administration tsena-smart</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Utilisateurs Actifs</h3>
+                <div class="stat-icon" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ total_users|default:"0" }}</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up mr-1"></i>
+                <span>+5% depuis la semaine dernière</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Modules Système</h3>
+                <div class="stat-icon" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                    <i class="fas fa-folder"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ app_list|length }}</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-minus mr-1"></i>
+                <span>Inchangé depuis la semaine dernière</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Entités de Données</h3>
+                <div class="stat-icon" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                    <i class="fas fa-database"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ total_models|default:"0" }}</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up mr-1"></i>
+                <span>+2% depuis la semaine dernière</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <h3 class="stat-title">Opérations Récentes</h3>
+                <div class="stat-icon" style="background-color: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ recent_actions|default:"0" }}</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up mr-1"></i>
+                <span>+8% depuis la semaine dernière</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Cards -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div>
+                <h2 class="data-card-title">Modules du Système</h2>
+            </div>
+        </div>
+        <div class="data-card-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for app in app_list %}
+                <div class="app-card bg-bg-card border border-border-color rounded-lg overflow-hidden hover:shadow-md transition-all">
+                    <div class="app-card-header p-4 border-b border-border-color bg-sidebar-bg">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <i class="fas {% if app.name == 'Authentication and Authorization' %}fa-shield-alt{% elif app.name == 'Quete' %}fa-scroll{% else %}fa-cube{% endif %} mr-2 text-primary"></i>
+                            {{ app.verbose_name|default:app.name }}
+                        </h3>
+                    </div>
+                    <div class="app-card-content p-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {% for model in app.models %}
+                            <div class="model-square-card border border-border-color rounded-md overflow-hidden">
+                                <div class="model-square-header p-2 bg-sidebar-bg border-b border-border-color">
+                                    <h4 class="text-sm font-medium truncate">{{ model.name }}</h4>
+                                </div>
+                                <div class="model-square-actions p-2 flex justify-center space-x-3">
+                                    {% if model.add_url %}
+                                    <a href="{{ model.add_url }}" class="action-btn add-btn" title="Ajouter">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if model.admin_url %}
+                                    <a href="{{ model.admin_url }}" class="action-btn view-btn" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Actions -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div>
+                <h2 class="data-card-title">Actions récentes</h2>
+                <p class="data-card-subtitle">Vos dernières activités</p>
+            </div>
+        </div>
+        <div class="data-card-content">
+            {% load log %}
+            {% get_admin_log 10 as admin_log %}
+            {% if not admin_log %}
+            <p>Aucune action récente.</p>
+            {% else %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date/Heure</th>
+                            <th>Utilisateur</th>
+                            <th>Action</th>
+                            <th>Objet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in admin_log %}
+                        <tr>
+                            <td>{{ entry.action_time|date:"d/m/Y H:i" }}</td>
+                            <td>{{ entry.user.username }}</td>
+                            <td>
+                                {% if entry.is_addition %}
+                                <span class="badge badge-blue">Ajout</span>
+                                {% elif entry.is_change %}
+                                <span class="badge badge-purple">Modification</span>
+                                {% elif entry.is_deletion %}
+                                <span class="badge badge-gray">Suppression</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.is_deletion or not entry.get_admin_url %}
+                                {{ entry.object_repr }}
+                                {% else %}
+                                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div>
+                <h2 class="data-card-title">Informations système</h2>
+            </div>
+        </div>
+        <div class="data-card-content">
+            <div class="flex flex-wrap gap-3">
+                <div class="flex items-center px-3 py-2 bg-sidebar-bg rounded-lg">
+                    <i class="fas fa-server text-primary mr-2"></i>
+                    <span class="text-sm">Django version: <span class="font-medium">{{ django_version }}</span></span>
+                </div>
+                <div class="flex items-center px-3 py-2 bg-sidebar-bg rounded-lg">
+                    <i class="fas fa-clock text-primary mr-2"></i>
+                    <span class="text-sm">Heure serveur: <span class="font-medium">{% now "H:i" %}</span></span>
+                </div>
+                <div class="flex items-center px-3 py-2 bg-sidebar-bg rounded-lg">
+                    <i class="fas fa-calendar-alt text-primary mr-2"></i>
+                    <span class="text-sm">Date: <span class="font-medium">{% now "d/m/Y" %}</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

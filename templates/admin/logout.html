@@ -1,0 +1,91 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block bodyclass %}logout{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+  <div class="logout-card">
+    <div class="logout-header">
+      <div class="logout-logo">
+        <img src="{% static 'images/end.png' %}" alt="Kontrana Logo" style="height: 60px; width: auto;">
+      </div>
+      <h1 class="logout-title">Déconnexion</h1>
+      <p class="logout-subtitle">{% translate 'Are you sure you want to log out?' %}</p>
+    </div>
+
+    <div class="logout-actions">
+      <form action="{% url 'admin:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary w-full">
+          <i class="fas fa-sign-out-alt mr-2"></i>
+          {% translate 'Log out' %}
+        </button>
+      </form>
+
+      <a href="{% url 'admin:index' %}" class="btn btn-outline w-full mt-3">
+        <i class="fas fa-arrow-left mr-2"></i>
+        {% translate 'Return to administration' %}
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .logout-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .logout-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .logout-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .logout-logo {
+    margin: 0 auto 1.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .logout-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .logout-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
+  .logout-actions {
+    margin-top: 1.5rem;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .mt-3 {
+    margin-top: 0.75rem;
+  }
+</style>
+{% endblock %}

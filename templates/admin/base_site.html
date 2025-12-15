@@ -1,0 +1,151 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | Smart Business Admin{% endblock %}
+
+{% block branding %}
+<div class="flex items-center">
+    <a href="{% url 'admin:index' %}" class="flex items-center gap-3">
+        <img src="{% static 'images/end.png' %}" alt="Smart Business Logo" style="height: 30px; width: auto;" class="transition-transform hover:scale-105">
+        <span class="text-lg font-semibold">Smart Business</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Styles spécifiques au site qui complètent mikrotik-theme.css */
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .site-logo {
+        height: 30px;
+        width: auto;
+        transition: transform 0.3s ease;
+    }
+    
+    .site-logo:hover {
+        transform: scale(1.05);
+    }
+    
+    .site-name {
+        font-weight: 600;
+        font-size: 1.25rem;
+        color: var(--text-primary);
+    }
+    
+    /* Personnalisation des couleurs spécifiques à Smart Business */
+    :root {
+        --tsena-smart-primary: #4f46e5;
+        --tsena-smart-secondary: #0ea5e9;
+    }
+    
+    /* Surcharge des styles pour les éléments spécifiques */
+    .gradient-text {
+        background: linear-gradient(90deg, var(--tsena-smart-primary), var(--tsena-smart-secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    /* Styles pour les badges personnalisés */
+    .tsena-smart-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .tsena-smart-badge-primary {
+        background-color: rgba(79, 70, 229, 0.1);
+        color: var(--tsena-smart-primary);
+    }
+    
+    .tsena-smart-badge-secondary {
+        background-color: rgba(14, 165, 233, 0.1);
+        color: var(--tsena-smart-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fonctions spécifiques au site tsena-smart
+        
+        // Fonction pour mettre à jour le compteur de notifications (exemple)
+        function updateNotificationCount() {
+            const notificationBadge = document.getElementById('notification-badge');
+            if (notificationBadge) {
+                // Simuler un compteur de notifications (à remplacer par une vraie logique)
+                const count = Math.floor(Math.random() * 5);
+                notificationBadge.textContent = count;
+                notificationBadge.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+        
+        // Initialiser les fonctions spécifiques au site
+        updateNotificationCount();
+        
+        // Mettre à jour les notifications toutes les 5 minutes (simulation)
+        setInterval(updateNotificationCount, 300000);
+    });
+</script>
+{% endblock %}
+
+{% block usertools %}
+{% if user.is_authenticated %}
+<div class="flex items-center gap-4">
+    <!-- Notifications (exemple) -->
+    <div class="tooltip">
+        <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-sidebar-bg transition-colors relative">
+            <i class="fas fa-bell"></i>
+            <span id="notification-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center" style="display: none;">0</span>
+        </button>
+        <span class="tooltip-text">Notifications</span>
+    </div>
+    
+    <!-- Menu utilisateur -->
+    <div class="flex items-center gap-2">
+        <span class="text-sm font-medium hidden md:inline">{{ user.get_short_name|default:user.username }}</span>
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+            {{ user.get_short_name.0|default:user.username.0|upper }}
+        </div>
+    </div>
+    
+    <!-- Liens utilisateur -->
+    <div class="hidden md:flex items-center gap-3">
+        {% if site_url %}
+            <a href="{{ site_url }}" class="text-text-secondary hover:text-primary transition-colors">
+                <i class="fas fa-globe mr-1"></i> {% translate 'View site' %}
+            </a>
+        {% endif %}
+        
+        {% if user.has_usable_password %}
+            <a href="{% url 'admin:password_change' %}" class="text-text-secondary hover:text-primary transition-colors">
+                <i class="fas fa-key mr-1"></i> {% translate 'Change password' %}
+            </a>
+        {% endif %}
+        
+        <form id="logout-form" action="{% url 'admin:logout' %}" method="post" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-text-secondary hover:text-primary transition-colors bg-transparent border-0 cursor-pointer p-0 font-inherit">
+                <i class="fas fa-sign-out-alt mr-1"></i> {% translate 'Log out' %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

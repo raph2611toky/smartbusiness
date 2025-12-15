@@ -1,0 +1,221 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {% if cl.formset %}
+    <link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+  {% endif %}
+  {% if cl.formset or action_form %}
+    <script src="{% static 'admin/js/cancel.js' %}" async></script>
+  {% endif %}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <div class="page-header">
+        <h1 class="page-title">{{ cl.opts.verbose_name_plural|capfirst }}</h1>
+        <p class="page-subtitle">Gérez vos {{ cl.opts.verbose_name_plural }}</p>
+    </div>
+
+    {% block object-tools %}
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="search-filters-container w-full md:w-auto">
+          {% block search %}{% search_form cl %}{% endblock %}
+        </div>
+        <ul class="object-tools flex flex-wrap gap-2">
+          {% block object-tools-items %}
+            {% change_list_object_tools %}
+          {% endblock %}
+        </ul>
+      </div>
+    {% endblock %}
+
+    {% if cl.formset and cl.formset.errors %}
+      <div class="messagelist">
+        <li class="error">
+          {% if cl.formset.total_error_count == 1 %}
+            {% translate "Please correct the error below." %}
+          {% else %}
+            {% translate "Please correct the errors below." %}
+          {% endif %}
+        </li>
+      </div>
+      {{ cl.formset.non_form_errors }}
+    {% endif %}
+
+    <div class="data-card">
+      <div class="data-card-header">
+        <div>
+          <h2 class="data-card-title">Liste des {{ cl.opts.verbose_name_plural }}</h2>
+          <p class="data-card-subtitle">{{ cl.result_count }} élément{{ cl.result_count|pluralize }}</p>
+        </div>
+        <div class="data-card-actions flex flex-wrap gap-2">
+          {% if cl.has_filters %}
+          <button class="btn btn-outline" id="toggle-filters">
+            <i class="fas fa-filter"></i>
+            <span>Filtres</span>
+          </button>
+          {% endif %}
+          
+          {% block date_hierarchy %}
+            {% if cl.date_hierarchy %}
+              <button class="btn btn-outline" id="toggle-date-hierarchy">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Date</span>
+              </button>
+            {% endif %}
+          {% endblock %}
+        </div>
+      </div>
+
+      {% if cl.has_filters %}
+      <div id="filters-container" class="p-4 border-t border-border-color" style="display: none;">
+        <h3 class="text-lg font-semibold mb-3">Filtres</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {% for spec in cl.filter_specs %}
+            <div class="filter-group p-3 border border-border-color rounded-md">
+              <h4 class="text-sm font-medium mb-2">{{ spec.title }}</h4>
+              {% admin_list_filter cl spec %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if cl.date_hierarchy %}
+      <div id="date-hierarchy-container" class="p-4 border-t border-border-color" style="display: none;">
+        <h3 class="text-lg font-semibold mb-3">Filtrer par date</h3>
+        <div class="date-hierarchy p-3 border border-border-color rounded-md">
+          {% date_hierarchy cl %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="data-card-content">
+        {% if action_form and actions_on_top and cl.show_admin_actions %}
+          <div class="actions-container mb-4 p-3 bg-sidebar-bg rounded-md">
+            {% admin_actions %}
+          </div>
+        {% endif %}
+
+        {% block result_list %}
+          <div class="table-container">
+            {% result_list cl %}
+          </div>
+        {% endblock %}
+
+        {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+          <div class="actions-container mt-4 p-3 bg-sidebar-bg rounded-md">
+            {% admin_actions %}
+          </div>
+        {% endif %}
+      </div>
+
+      {% block pagination %}
+        <div class="p-4 border-t border-border-color">
+          {% pagination cl %}
+        </div>
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle filters
+    const toggleFiltersBtn = document.getElementById('toggle-filters');
+    const filtersContainer = document.getElementById('filters-container');
+    
+    if (toggleFiltersBtn && filtersContainer) {
+      toggleFiltersBtn.addEventListener('click', function() {
+        if (filtersContainer.style.display === 'none') {
+          filtersContainer.style.display = 'block';
+        } else {
+          filtersContainer.style.display = 'none';
+        }
+      });
+    }
+    
+    // Toggle date hierarchy
+    const toggleDateBtn = document.getElementById('toggle-date-hierarchy');
+    const dateContainer = document.getElementById('date-hierarchy-container');
+    
+    if (toggleDateBtn && dateContainer) {
+      toggleDateBtn.addEventListener('click', function() {
+        if (dateContainer.style.display === 'none') {
+          dateContainer.style.display = 'block';
+        } else {
+          dateContainer.style.display = 'none';
+        }
+      });
+    }
+    
+    // Enhance search form
+    const searchForm = document.querySelector('#changelist-search');
+    if (searchForm) {
+      const searchInput = searchForm.querySelector('input[type="text"]');
+      if (searchInput) {
+        searchInput.classList.add('search-input');
+        searchInput.parentNode.classList.add('search-container');
+        
+        // Add search icon
+        const searchIcon = document.createElement('i');
+        searchIcon.className = 'fas fa-search search-icon';
+        searchInput.parentNode.insertBefore(searchIcon, searchInput);
+      }
+      
+      const searchButton = searchForm.querySelector('input[type="submit"]');
+      if (searchButton) {
+        searchButton.classList.add('btn', 'btn-primary', 'ml-2');
+      }
+    }
+    
+    // Style the result list
+    const resultList = document.querySelector('.results table');
+    if (resultList) {
+      resultList.classList.add('w-full');
+      
+      // Style table headers
+      const headers = resultList.querySelectorAll('th');
+      headers.forEach(header => {
+        header.classList.add('py-3', 'px-4', 'text-left', 'font-semibold', 'text-sm', 'uppercase');
+      });
+      
+      // Style table rows
+      const rows = resultList.querySelectorAll('tbody tr');
+      rows.forEach((row, index) => {
+        row.classList.add('border-b', 'border-border-color', 'hover:bg-sidebar-bg', 'transition-colors');
+        row.style.animationDelay = `${index * 0.05}s`;
+        row.classList.add('slide-in');
+        
+        // Style table cells
+        const cells = row.querySelectorAll('td');
+        cells.forEach(cell => {
+          cell.classList.add('py-3', 'px-4');
+        });
+      });
+    }
+    
+    // Style pagination
+    const pagination = document.querySelector('.paginator');
+    if (pagination) {
+      pagination.classList.add('flex', 'justify-center', 'items-center', 'mt-4', 'space-x-1');
+      
+      const paginationLinks = pagination.querySelectorAll('a');
+      paginationLinks.forEach(link => {
+        link.classList.add('pagination-item');
+      });
+      
+      const currentPage = pagination.querySelector('.this-page');
+      if (currentPage) {
+        currentPage.classList.add('pagination-item', 'active');
+      }
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,213 @@
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<head>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
+{% block dark-mode-vars %}
+  <link rel="stylesheet" href="{% static "admin/css/dark_mode.css" %}">
+  <script src="{% static "admin/js/theme.js" %}"></script>
+{% endblock %}
+<link rel="stylesheet" href="{% static "css/tsena-smart-theme.css" %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
+{% block extrahead %}{% endblock %}
+{% block responsive %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}">
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
+{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+  data-admin-utc-offset="{% now "Z" %}">
+<a href="#content-start" class="skip-to-content-link">{% translate 'Skip to main content' %}</a>
+<!-- Container -->
+<div id="container">
+
+    {% if not is_popup %}
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-pulse">
+                <img src="{% static 'images/end.png' %}" alt="tsena-smart Logo" class="site-logo">
+                <h1 class="gradient-text">tsena-smart</h1>
+            </div>
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">MENU</div>
+                <a href="{% url 'admin:index' %}" class="menu-item {% if request.path == '/admin/' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="{% url 'admin:app_list' app_label='auth' %}" class="menu-item {% if 'auth' in request.path %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>Groupes</span>
+                </a>
+                {% for app in available_apps %}
+                    {% if app.app_label != 'auth' %}
+                    <a href="{% url 'admin:app_list' app_label=app.app_label %}" class="menu-item {% if app.app_label in request.path %}active{% endif %}">
+                        <i class="fas fa-folder"></i>
+                        <span>{{ app.verbose_name|default:app.name }}</span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+                <a href="{% url 'admin:password_change' %}" class="menu-item {% if 'password_change' in request.path %}active{% endif %}">
+                    <i class="fas fa-key"></i>
+                    <span>Changer mot de passe</span>
+                </a>
+                <form action="{% url 'admin:logout' %}" method="post" class="menu-item">
+                    {% csrf_token %}
+                    <button type="submit" class="menu-item-button">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">RAPPORTS</div>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Journalier</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Hebdomadaire</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-chart-area"></i>
+                    <span>Mensuel</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">SYSTÈME</div>
+                <div class="card p-3 mb-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-online"></span>
+                            <span class="text-sm">Serveur</span>
+                        </div>
+                        <span class="text-xs text-text-secondary">En ligne</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm">CPU</span>
+                        <div class="progress-bar w-24 h-2">
+                            <div class="progress-value progress-low" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">Mémoire</span>
+                        <div class="progress-bar w-24 h-2">
+                            <div class="progress-value progress-medium" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-xs text-text-secondary text-center">
+                    Dernière mise à jour: <span id="last-update">il y a 2 minutes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Sidebar -->
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header glassmorphism">
+            <div class="flex items-center">
+                <button class="mobile-menu-btn mr-4 hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+                {% block branding %}{% endblock %}
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="search-container hidden md:block">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" placeholder="Rechercher..." class="search-input">
+                </div>
+                <div class="flex items-center">
+                    <span class="mr-2 text-sm">Thème</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider">
+                            <i class="fas fa-moon moon"></i>
+                            <i class="fas fa-sun sun"></i>
+                        </span>
+                    </label>
+                </div>
+                {% if user.is_authenticated %}
+                <div class="flex items-center">
+                    <div class="tooltip">
+                        <div class="flex items-center">
+                            <span class="text-sm font-medium mr-2 hidden md:inline">{{ user.nom_complet }}</span>
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <span class="tooltip-text">{{ user.get_full_name|default:user.nom_complet }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+        <!-- END Header -->
+
+        {% block breadcrumbs %}
+        <nav class="breadcrumbs">
+            <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+            {% block nav-breadcrumbs %}{% endblock %}
+        </nav>
+        {% endblock %}
+
+        <main id="content-start" class="content" tabindex="-1">
+            {% block messages %}
+                {% if messages %}
+                    <ul class="messagelist">{% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+                    {% endfor %}</ul>
+                {% endif %}
+            {% endblock messages %}
+            <!-- Content -->
+            <div id="content" class="{% block coltype %}colM{% endblock %}">
+                {% block pretitle %}{% endblock %}
+                {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+                {% block content_subtitle %}{% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}{% endblock %}
+                {% block content %}
+                    {% block object-tools %}{% endblock %}
+                    {{ content }}
+                {% endblock %}
+                {% block sidebar %}{% endblock %}
+                <br class="clear">
+            </div>
+            <!-- END Content -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-text">
+                &copy; {% now "Y" %} tsena-smart - Tous droits réservés
+            </div>
+            
+        </footer>
+        <!-- END Footer -->
+    </div>
+    <!-- END Main Content -->
+    {% endif %}
+</div>
+<!-- END Container -->
+
+<!-- Floating Action Button -->
+<div class="fab tooltip">
+    <i class="fas fa-plus"></i>
+    <span class="tooltip-text">Ajouter</span>
+</div>
+
+<script src="{% static 'js/tsena-smart-theme.js' %}"></script>
+{% block extrabody %}{% endblock %}
+</body>
+</html>

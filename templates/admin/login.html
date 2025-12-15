@@ -1,0 +1,138 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% translate 'Log in' %} | tsena-smart Admin</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <img src="{% static 'images/end.png' %}" alt="tsena-smart Logo" class="login-logo">
+      <h1>tsena-smart</h1>
+    </div>
+
+    {% if form.errors and not form.non_field_errors %}
+    <div class="error-message">
+      {% if form.errors.items|length == 1 %}{% translate "Veuillez corriger l'erreur ci-dessous." %}{% else %}{% translate "Veuillez corriger les erreurs ci-dessous." %}{% endif %}
+    </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <div class="error-message">{{ error }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <form action="{{ app_path }}" method="post" id="login-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <div class="input-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon-svg">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          {{ form.username.errors }}
+          <input type="text" name="username" id="id_username" placeholder="Nom d'utilisateur" required autofocus>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon-svg">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          {{ form.password.errors }}
+          <input type="password" name="password" id="id_password" placeholder="Mot de passe" required>
+          <button type="button" id="toggle-password" class="toggle-password">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-off-icon" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="form-actions">
+        <button type="submit" class="login-button">
+          <span class="button-text">Connexion</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="button-icon">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      {% url 'admin_password_reset' as password_reset_url %}
+      {% if password_reset_url %}
+      <div class="password-reset">
+        <a href="{{ password_reset_url }}">Mot de passe oublié ?</a>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="background-shapes">
+  <div class="shape shape-1"></div>
+  <div class="shape shape-2"></div>
+  <div class="shape shape-3"></div>
+  <div class="shape shape-4"></div>
+</div>
+
+<script src="{% static 'js/theme-toggle.js' %}"></script>
+<script>
+window.addEventListener('load', function() {
+  console.log("Script de toggle mot de passe chargé");
+
+  const togglePassword = document.getElementById('toggle-password');
+  const passwordInput = document.getElementById('id_password');
+
+  if (togglePassword && passwordInput) {
+    const eyeIcon = togglePassword.querySelector('.eye-icon');
+    const eyeOffIcon = togglePassword.querySelector('.eye-off-icon');
+
+    togglePassword.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log("Toggle password clicked");
+
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      if (type === 'text') {
+        eyeIcon.style.display = 'none';
+        eyeOffIcon.style.display = 'block';
+      } else {
+        eyeIcon.style.display = 'block';
+        eyeOffIcon.style.display = 'none';
+      }
+    });
+  } else {
+    console.error("Éléments de toggle mot de passe non trouvés");
+  }
+
+  const loginButton = document.querySelector('.login-button');
+  if (loginButton) {
+    loginButton.addEventListener('mouseenter', function() {
+      this.classList.add('button-hover');
+    });
+    
+    loginButton.addEventListener('mouseleave', function() {
+      this.classList.remove('button-hover');
+    });
+  }
+});
+</script>
+</body>
+</html>

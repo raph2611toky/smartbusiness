@@ -1,0 +1,199 @@
+:root {
+  /* Palette de couleurs principale */
+  --color-navy-50: #f0f5ff;
+  --color-navy-100: #e0eaff;
+  --color-navy-200: #c7d9ff;
+  --color-navy-300: #a4bfff;
+  --color-navy-400: #7a9cff;
+  --color-navy-500: #5a7afc;
+  --color-navy-600: #3e5cf1;
+  --color-navy-700: #2d4ad8;
+  --color-navy-800: #1e3bb0;
+  --color-navy-900: #172a80;
+  --color-navy-950: #0f1a4d;
+
+  /* Palette de couleurs secondaire */
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-300: #a5b4fc;
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;
+  --color-indigo-700: #4338ca;
+  --color-indigo-800: #3730a3;
+  --color-indigo-900: #312e81;
+  --color-indigo-950: #1e1b4b;
+
+  /* Palette de couleurs d'accentuation */
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+  --color-teal-800: #115e59;
+  --color-teal-900: #134e4a;
+  --color-teal-950: #042f2e;
+
+  /* Palette de couleurs neutres */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  /* Palette de bleu profond */
+  --color-midnight-50: #f5f7fa;
+  --color-midnight-100: #ebeef5;
+  --color-midnight-200: #d8deeb;
+  --color-midnight-300: #b6c4db;
+  --color-midnight-400: #8da0c5;
+  --color-midnight-500: #6a7eaf;
+  --color-midnight-600: #4a5d8b;
+  --color-midnight-700: #3a4a70;
+  --color-midnight-800: #1a2234;
+  --color-midnight-900: #111827;
+  --color-midnight-950: #0a0f1a;
+
+  /* Palette de violet profond */
+  --color-deep-purple-50: #f5f3ff;
+  --color-deep-purple-100: #ede9fe;
+  --color-deep-purple-200: #ddd6fe;
+  --color-deep-purple-300: #c4b5fd;
+  --color-deep-purple-400: #a78bfa;
+  --color-deep-purple-500: #8b5cf6;
+  --color-deep-purple-600: #7c3aed;
+  --color-deep-purple-700: #6d28d9;
+  --color-deep-purple-800: #5b21b6;
+  --color-deep-purple-900: #4c1d95;
+  --color-deep-purple-950: #2e1065;
+
+  /* Couleurs d'état */
+  --color-success-light: #10b981;
+  --color-success-dark: #059669;
+  --color-warning-light: #f59e0b;
+  --color-warning-dark: #d97706;
+  --color-error-light: #ef4444;
+  --color-error-dark: #dc2626;
+  --color-info-light: #3b82f6;
+  --color-info-dark: #2563eb;
+
+  /* Variables pour le mode clair */
+  --primary-light: var(--color-slate-50);
+  --secondary-light: var(--color-slate-100);
+  --accent-light: var(--color-navy-600);
+  --accent-gradient-light: linear-gradient(135deg, var(--color-navy-600), var(--color-indigo-600));
+  --text-light: var(--color-slate-900);
+  --text-secondary-light: var(--color-slate-600);
+  --border-light: var(--color-slate-200);
+  --sidebar-bg-light: var(--color-slate-100);
+  --header-bg-light: var(--color-slate-50);
+  --link-color-light: var(--color-navy-600);
+  --link-hover-light: var(--color-navy-700);
+  --card-bg-light: var(--color-slate-50);
+  --card-shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --success-light: var(--color-success-light);
+  --warning-light: var(--color-warning-light);
+  --error-light: var(--color-error-light);
+  --info-light: var(--color-info-light);
+  --input-bg-light: var(--color-slate-50);
+  --button-gradient-light: linear-gradient(135deg, var(--color-navy-600), var(--color-indigo-600));
+  --button-shadow-light: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+  --icon-color-light: var(--color-slate-500);
+  --shape-color-1-light: rgba(59, 130, 246, 0.1);
+  --shape-color-2-light: rgba(139, 92, 246, 0.1);
+  --shape-color-3-light: rgba(99, 102, 241, 0.1);
+  --shape-color-4-light: rgba(14, 165, 233, 0.1);
+
+  /* Variables pour le mode sombre */
+  --primary-dark: var(--color-midnight-950);
+  --secondary-dark: var(--color-midnight-900);
+  --accent-dark: var(--color-deep-purple-400);
+  --accent-gradient-dark: linear-gradient(135deg, var(--color-deep-purple-500), var(--color-indigo-500));
+  --text-dark: var(--color-slate-200);
+  --text-secondary-dark: var(--color-slate-400);
+  --border-dark: var(--color-midnight-800);
+  --sidebar-bg-dark: var(--color-midnight-950);
+  --header-bg-dark: var(--color-midnight-900);
+  --link-color-dark: var(--color-deep-purple-300);
+  --link-hover-dark: var(--color-deep-purple-200);
+  --card-bg-dark: var(--color-midnight-900);
+  --card-shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --success-dark: var(--color-success-dark);
+  --warning-dark: var(--color-warning-dark);
+  --error-dark: var(--color-error-dark);
+  --info-dark: var(--color-info-dark);
+  --input-bg-dark: var(--color-midnight-900);
+  --button-gradient-dark: linear-gradient(135deg, var(--color-deep-purple-500), var(--color-indigo-500));
+  --button-shadow-dark: 0 10px 15px -3px rgba(91, 33, 182, 0.3);
+  --icon-color-dark: var(--color-slate-300);
+  --shape-color-1-dark: rgba(124, 58, 237, 0.1);
+  --shape-color-2-dark: rgba(139, 92, 246, 0.1);
+  --shape-color-3-dark: rgba(99, 102, 241, 0.1);
+  --shape-color-4-dark: rgba(79, 70, 229, 0.1);
+
+  /* Valeurs par défaut (mode clair) */
+  --primary: var(--primary-light);
+  --secondary: var(--secondary-light);
+  --accent: var(--accent-light);
+  --accent-gradient: var(--accent-gradient-light);
+  --text: var(--text-light);
+  --text-secondary: var(--text-secondary-light);
+  --border: var(--border-light);
+  --sidebar-bg: var(--sidebar-bg-light);
+  --header-bg: var(--header-bg-light);
+  --link-color: var(--link-color-light);
+  --link-hover: var(--link-hover-light);
+  --card-bg: var(--card-bg-light);
+  --card-shadow: var(--card-shadow-light);
+  --success: var(--success-light);
+  --warning: var(--warning-light);
+  --error: var(--error-light);
+  --info: var(--info-light);
+  --input-bg: var(--input-bg-light);
+  --button-gradient: var(--button-gradient-light);
+  --button-shadow: var(--button-shadow-light);
+  --icon-color: var(--icon-color-light);
+  --shape-color-1: var(--shape-color-1-light);
+  --shape-color-2: var(--shape-color-2-light);
+  --shape-color-3: var(--shape-color-3-light);
+  --shape-color-4: var(--shape-color-4-light);
+}
+
+/* Mode sombre */
+[data-theme="dark"] {
+  --primary: var(--primary-dark);
+  --secondary: var(--secondary-dark);
+  --accent: var(--accent-dark);
+  --accent-gradient: var(--accent-gradient-dark);
+  --text: var(--text-dark);
+  --text-secondary: var(--text-secondary-dark);
+  --border: var(--border-dark);
+  --sidebar-bg: var(--sidebar-bg-dark);
+  --header-bg: var(--header-bg-dark);
+  --link-color: var(--link-color-dark);
+  --link-hover: var(--link-hover-dark);
+  --card-bg: var(--card-bg-dark);
+  --card-shadow: var(--card-shadow-dark);
+  --success: var(--success-dark);
+  --warning: var(--warning-dark);
+  --error: var(--error-dark);
+  --info: var(--info-dark);
+  --input-bg: var(--input-bg-dark);
+  --button-gradient: var(--button-gradient-dark);
+  --button-shadow: var(--button-shadow-dark);
+  --icon-color: var(--icon-color-dark);
+  --shape-color-1: var(--shape-color-1-dark);
+  --shape-color-2: var(--shape-color-2-dark);
+  --shape-color-3: var(--shape-color-3-dark);
+  --shape-color-4: var(--shape-color-4-dark);
+}
