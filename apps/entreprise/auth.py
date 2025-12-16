@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 
 from apps.entreprise.tokens import EntrepriseRefreshToken
 from apps.entreprise.serializers import EntrepriseSerializer
-from apps.entreprise.models import Entreprise, EntrepriseOtp, Plan
+from apps.entreprise.models import Entreprise, EntrepriseOtp, Plan, PrefixTelephone
 
 from helpers.services.google.authentication import handle_google_callback
 from helpers.services.emails import envoyer_email
@@ -236,9 +236,11 @@ class EntrepriseRegisterView(APIView):
                     'donnees': {}
                 }, status=status.HTTP_409_CONFLICT)
                 
-            plan_freenium, _ = Plan.objects.get_or_create(nom='freemium',defaults={'description': 'Plan gratuit avec fonctionnalités basiques','prix': 0.00})
             data = request.data
+            plan_freenium, _ = Plan.objects.get_or_create(nom='freemium',defaults={'description': 'Plan gratuit avec fonctionnalités basiques','prix': 0.00})
+            prefix_telephone = PrefixTelephone.objects.get(prefix=request.data.get('prefix_telephone','+261'))
             data['plan'] = request.data.get('plan', plan_freenium.id)
+            data['prefix_telephone'] = prefix_telephone.id
             serializer = EntrepriseSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             entreprise = serializer.save()

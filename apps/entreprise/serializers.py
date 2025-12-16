@@ -60,9 +60,15 @@ class EntrepriseSerializer(serializers.ModelSerializer):
     profile_url = serializers.SerializerMethodField()
     user_type = serializers.SerializerMethodField()
     date_creation = serializers.SerializerMethodField()
-    services = serializers.PrimaryKeyRelatedField(many=True, queryset=Service.objects.all())
+    services = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        write_only=True,
+        required=False,
+        allow_empty=True,
+        help_text="Liste des noms de services (ex: ['Comptabilité', 'RH', 'IT']) - Créés automatiquement si inexistants"
+    )
     plan = serializers.PrimaryKeyRelatedField(queryset=Plan.objects.all(), allow_null=True)
-    prefix_telephone = serializers.PrimaryKeyRelatedField(queryset=PrefixTelephone.objects.all(), allow_null=True)
+    prefix_telephone = serializers.SerializerMethodField()
 
     class Meta:
         model = Entreprise
@@ -86,6 +92,9 @@ class EntrepriseSerializer(serializers.ModelSerializer):
         if obj.date_creation:
             return datetime.strftime(obj.date_creation, "%d-%m-%Y")
         return None
+    
+    def get_prefix_telephone(self, obj):
+        return obj.prefix_telephone.prefix
 
     def validate_email(self, value):
         if Entreprise.objects.filter(email=value).exclude(id=self.instance.id if self.instance else None).exists():
@@ -98,13 +107,25 @@ class EntrepriseSerializer(serializers.ModelSerializer):
         prefix_data = validated_data.pop('prefix_telephone', None)
         validated_data['mot_de_passe'] = make_password(validated_data['mot_de_passe'])
         instance = super().create(validated_data)
-        if services_data:
-            instance.services.set(services_data)
+        services_crees = []
+        for service_nom in services_data:
+            service_nom = service_nom.strip().title()
+            service, created = Service.objects.get_or_create(
+                titre=service_nom,
+                defaults={'titre': service_nom}
+            )
+            instance.services.add(service)
+            services_crees.append({
+                'nom': service.titre,
+                'existant': not created,
+                'id': service.id
+            })
         if plan_data:
             instance.plan = plan_data
         if prefix_data:
             instance.prefix_telephone = prefix_data
         instance.save()
+        instance.services_list = services_crees
         return instance
 
     def update(self, instance, validated_data):
