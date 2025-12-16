@@ -291,7 +291,7 @@ class GoogleAuthUrlView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Admin'],
+        tags=['Google Auth Redirect'],
         responses={
             200: openapi.Response(
                 description="Succès",

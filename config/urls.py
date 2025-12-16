@@ -25,7 +25,9 @@ protected_redoc = swagger_password_protect(schema_view.with_ui('redoc', cache_ti
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('apps.users.urls')),
+    path('api/admin/', include('apps.users.urls')),
+    path('api/entreprises/', include('apps.entreprise.urls')),
+    path('api/employes/', include('apps.employe.urls')),
     
     path('api/docs/', protected_swagger, name='schema-swagger-ui'),
     path('api/redoc/', protected_redoc, name='schema-redoc'),

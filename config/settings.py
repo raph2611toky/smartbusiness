@@ -21,6 +21,8 @@ ALLOWED_HOSTS = [IP_ADDR, '127.0.0.1', 'localhost']
 
 LOCAL_APPS = [
     'apps.users.apps.UsersConfig',
+    'apps.entreprise.apps.EntrepriseConfig',
+    'apps.employe.apps.EmployeConfig',
 ]
 
 THIRD_APPS = [

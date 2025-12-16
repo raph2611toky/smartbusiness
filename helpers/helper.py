@@ -11,6 +11,8 @@ from base64 import b64decode,b64encode
 from cryptography.hazmat.backends import default_backend
 
 from apps.users.models import User
+from apps.employe.models import Employe, EmployeCompte
+from apps.entreprise.models import Entreprise
 
 import os, jwt, logging
 import random
@@ -62,4 +64,29 @@ def get_user(token):
             return User.objects.get(id=user_id)
         return None
     except (TokenError, User.DoesNotExist):
+        return None
+
+def get_entreprise(token):
+    try:
+        access_token = AccessToken(token)
+        if "entreprise_id" in access_token:
+            entreprise_id = access_token['entreprise_id']
+            return Entreprise.objects.get(id=entreprise_id)
+        return None
+    except (TokenError, Entreprise.DoesNotExist):
+        return None
+    
+def get_employe(token):
+    try:
+        access_token = AccessToken(token)
+        if "employe_id" in access_token:
+            employe_id = access_token['employe_id']
+            compte = EmployeCompte.objects.filter(
+                employe_id=employe_id, 
+                est_actif=True
+            ).first()
+            if compte:
+                return compte.employe
+        return None
+    except (TokenError, EmployeCompte.DoesNotExist):
         return None
