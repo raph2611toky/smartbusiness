@@ -28,3 +28,9 @@ class IsAuthenticatedEmploye(BasePermission):
         request.employe = employe
         return True
 
+class IsEmployeEntreprise(BasePermission):
+    """Employé appartient à l'entreprise connectée"""
+    def has_permission(self, request, view):
+        if not hasattr(request, 'entreprise') or not request.entreprise:
+            return False
+        return request.employe and request.employe.entreprise == request.entreprise

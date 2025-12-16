@@ -23,7 +23,7 @@ class ProfessionListView(APIView):
     permission_classes = [AllowAny]
 
     @swagger_auto_schema(
-        tags=['Employé - Référence'],
+        tags=['Référence'],
         operation_description="Lister toutes les professions avec la liste des accès inclus.",
         responses={
             200: openapi.Response(
@@ -69,7 +69,7 @@ class EmployeListByEntrepriseView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Entreprise'],
+        tags=['Employé'],
         operation_description="Lister les employés de l'entreprise connectée.",
         manual_parameters=[
             openapi.Parameter('q', openapi.IN_QUERY, type=openapi.TYPE_STRING, required=False,
@@ -124,7 +124,7 @@ class EmployeGetOneByEntrepriseView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Entreprise'],
+        tags=['Employé'],
         operation_description="Récupérer un employé de l'entreprise par ID.",
         responses={
             200: openapi.Response(description="Employé", schema=openapi.Schema(
@@ -176,7 +176,7 @@ class EmployeDeleteByEntrepriseView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Entreprise'],
+        tags=['Employé'],
         operation_description="Supprimer un employé de l'entreprise.",
         responses={
             200: openapi.Response(description="Supprimé", schema=openapi.Schema(
@@ -228,7 +228,7 @@ class EmployeProfileView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Profil'],
+        tags=['Employé'],
         operation_description="Récupérer le profil de l'employé connecté.",
         responses={
             200: openapi.Response(description="Profil employé", schema=openapi.Schema(
@@ -268,7 +268,7 @@ class EmployeProfileUpdateView(APIView):
     parser_classes = [FormParser, MultiPartParser]
 
     @swagger_auto_schema(
-        tags=['Employé - Profil'],
+        tags=['Employé'],
         operation_description="Mettre à jour le profil de l'employé connecté (multipart/form-data).",
         manual_parameters=[
             openapi.Parameter('nom_complet', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),

@@ -30,7 +30,7 @@ class EmployeRefreshToken(RefreshToken):
                     employe=employe,
                     jti=token['jti'],
                     token=str(token),
-                    expires_at=expires_at
+                    date_expiration=expires_at
                 )
 
             return token

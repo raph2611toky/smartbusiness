@@ -28,6 +28,24 @@ load_dotenv()
 def generate_otp():
     return ''.join(random.choices(string.digits, k=6))
 
+RESPONSE_JSON = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'message': openapi.Schema(type=openapi.TYPE_STRING),
+        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+        'donnees': openapi.Schema(type=openapi.TYPE_OBJECT)
+    }
+)
+
+RESPONSE_JSON_LIST = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'message': openapi.Schema(type=openapi.TYPE_STRING),
+        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+        'donnees': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_OBJECT))
+    }
+)
+
 
 class EmployeLoginView(APIView):
     permission_classes = [AllowAny]
@@ -37,35 +55,32 @@ class EmployeLoginView(APIView):
         tags=['Employé'],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=['email', 'mot_de_passe'],
             properties={
-                'email': openapi.Schema(type=openapi.TYPE_STRING),
-                'mot_de_passe': openapi.Schema(type=openapi.TYPE_STRING),
-            },
-            required=['email', 'mot_de_passe']
+                'email': openapi.Schema(type=openapi.TYPE_STRING, example="employe@entreprise.com"),
+                'mot_de_passe': openapi.Schema(type=openapi.TYPE_STRING, example="MotDePasse123!")
+            }
         ),
         responses={
-            200: openapi.Response(
-                description="Connexion réussie",
-                schema=openapi.Schema(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'message': openapi.Schema(type=openapi.TYPE_STRING),
-                        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
-                        'donnees': openapi.Schema(
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                'access': openapi.Schema(type=openapi.TYPE_STRING),
-                                'refresh': openapi.Schema(type=openapi.TYPE_STRING),
-                                'nom_complet': openapi.Schema(type=openapi.TYPE_STRING),
-                                'email': openapi.Schema(type=openapi.TYPE_STRING),
-                            }
-                        )
-                    }
-                )
-            ),
-            400: openapi.Response(...),
-            401: openapi.Response(...),
-            500: openapi.Response(...),
+            200: openapi.Response('Connexion réussie', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example="Connexion réussie."),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+                    'donnees': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'access': openapi.Schema(type=openapi.TYPE_STRING),
+                            'refresh': openapi.Schema(type=openapi.TYPE_STRING),
+                            'nom_complet': openapi.Schema(type=openapi.TYPE_STRING),
+                            'email': openapi.Schema(type=openapi.TYPE_STRING)
+                        }
+                    )
+                }
+            )),
+            400: openapi.Response('Identifiants invalides', RESPONSE_JSON),
+            401: openapi.Response('Compte non actif', RESPONSE_JSON),
+            500: openapi.Response('Erreur serveur', RESPONSE_JSON)
         },
         operation_description="Connexion employé avec email et mot de passe."
     )
@@ -137,12 +152,36 @@ class EmployeCreateByEntrepriseView(APIView):
             openapi.Parameter('nom_complet', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
             openapi.Parameter('email', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
             openapi.Parameter('fonction', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
-            openapi.Parameter('profession', openapi.IN_FORM, type=openapi.TYPE_INTEGER, required=False,
-                              description="ID de la profession (obligatoire si est_un_compte=True)"),
-            openapi.Parameter('est_un_compte', openapi.IN_FORM, type=openapi.TYPE_BOOLEAN, required=False),
+            openapi.Parameter('date_naissance', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('cin', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('prefix_telephone', openapi.IN_FORM, type=openapi.TYPE_INTEGER, required=False),
+            openapi.Parameter('numero_telephone', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('adresse', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('etat_civil', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),
+            openapi.Parameter('photo', openapi.IN_FORM, type=openapi.TYPE_FILE, required=False),
+            openapi.Parameter('profession', openapi.IN_FORM, type=openapi.TYPE_INTEGER, required=False),
+            openapi.Parameter('est_un_compte', openapi.IN_FORM, type=openapi.TYPE_BOOLEAN, required=False)
         ],
-        responses={201: openapi.Response(...), 400: openapi.Response(...), 500: openapi.Response(...)},
-        operation_description="Création d’un employé par l’entreprise, avec ou sans compte."
+        responses={
+            201: openapi.Response('Employé créé', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example="Employé créé avec succès."),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+                    'donnees': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'employe_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                            'email': openapi.Schema(type=openapi.TYPE_STRING),
+                            'type_invitation': openapi.Schema(type=openapi.TYPE_STRING, enum=['COMPTE', 'OTP'])
+                        }
+                    )
+                }
+            )),
+            400: openapi.Response('Données invalides', RESPONSE_JSON),
+            500: openapi.Response('Erreur serveur', RESPONSE_JSON)
+        },
+        operation_description="Création employé par l'entreprise connectée."
     )
     def post(self, request):
         try:
@@ -218,14 +257,30 @@ class EmployeSetPasswordView(APIView):
         tags=['Employé'],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=['token', 'mot_de_passe'],
             properties={
-                "token": openapi.Schema(type=openapi.TYPE_STRING),
-                "mot_de_passe": openapi.Schema(type=openapi.TYPE_STRING),
-            },
-            required=["token", "mot_de_passe"]
+                'token': openapi.Schema(type=openapi.TYPE_STRING),
+                'mot_de_passe': openapi.Schema(type=openapi.TYPE_STRING, example="NouveauMdp123!")
+            }
         ),
-        responses={200: openapi.Response(...), 400: openapi.Response(...), 500: openapi.Response(...)},
-        operation_description="Définir le mot de passe lors de la première activation du compte employé."
+        responses={
+            200: openapi.Response('Compte activé', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example="Mot de passe défini, compte activé."),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+                    'donnees': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'access': openapi.Schema(type=openapi.TYPE_STRING),
+                            'refresh': openapi.Schema(type=openapi.TYPE_STRING)
+                        }
+                    )
+                }
+            )),
+            400: openapi.Response('Token invalide', RESPONSE_JSON),
+            500: openapi.Response('Erreur serveur', RESPONSE_JSON)
+        }
     )
     def post(self, request):
         try:
@@ -281,14 +336,18 @@ class EmployeConfirmOtpView(APIView):
         tags=['Employé'],
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
+            required=['email', 'code_otp'],
             properties={
-                "email": openapi.Schema(type=openapi.TYPE_STRING),
-                "code_otp": openapi.Schema(type=openapi.TYPE_STRING),
-            },
-            required=["email", "code_otp"]
+                'email': openapi.Schema(type=openapi.TYPE_STRING, example="employe@entreprise.com"),
+                'code_otp': openapi.Schema(type=openapi.TYPE_STRING, example="123456")
+            }
         ),
-        responses={200: openapi.Response(...), 400: openapi.Response(...), 500: openapi.Response(...)},
-        operation_description="Confirmer l'email d'un employé (sans compte) via OTP."
+        responses={
+            200: openapi.Response('Email vérifié', RESPONSE_JSON),
+            400: openapi.Response('OTP invalide/expiré', RESPONSE_JSON),
+            500: openapi.Response('Erreur serveur', RESPONSE_JSON)
+        },
+        operation_description="Confirmation email employé via OTP."
     )
     def post(self, request):
         try:
@@ -349,7 +408,7 @@ class EmployeForgotPasswordView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Auth'],
+        tags=['Employé'],
         operation_description="Envoyer un email de réinitialisation du mot de passe employé (uniquement pour les employés ayant un compte).",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -454,7 +513,7 @@ class EmployeResetPasswordView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Auth'],
+        tags=['Employé'],
         operation_description="Réinitialiser le mot de passe employé via token (reçu par email).",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -567,7 +626,7 @@ class EmployeLogoutView(APIView):
     authentication_classes = []
 
     @swagger_auto_schema(
-        tags=['Employé - Auth'],
+        tags=['Employé'],
         operation_description="Déconnexion employé (blacklist du refresh token).",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,

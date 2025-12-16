@@ -40,7 +40,7 @@ class EmployeOtpSerializer(serializers.ModelSerializer):
         return datetime.strftime(obj.date_expiration, '%d/%m/%Y %H:%M')
 
 class EmployeListSerializer(serializers.ModelSerializer):
-    profession_data = ProfessionSerializer(read_only=True)
+    profession_data = ProfessionSerializer(source='compte.profession', read_only=True)
     prefix_telephone_data = PrefixTelephoneSerializer(source='prefix_telephone', read_only=True)
     photo_url = serializers.SerializerMethodField()
     
@@ -60,7 +60,7 @@ class EmployeListSerializer(serializers.ModelSerializer):
         return None
 
 class EmployeCreateSerializer(serializers.ModelSerializer):
-    profession = serializers.PrimaryKeyRelatedField(queryset=Profession.objects.all(), required=False)
+    # profession = serializers.PrimaryKeyRelatedField(queryset=Profession.objects.all(), required=False)
     prefix_telephone = serializers.PrimaryKeyRelatedField(
         queryset=PrefixTelephone.objects.all(), 
         required=False, 
@@ -71,8 +71,7 @@ class EmployeCreateSerializer(serializers.ModelSerializer):
         model = Employe
         fields = [
             'nom_complet', 'email', 'date_naissance', 'cin', 'prefix_telephone',
-            'numero_telephone', 'adresse', 'etat_civil', 'fonction', 'photo',
-            'profession', 'est_un_compte'
+            'numero_telephone', 'adresse', 'etat_civil', 'fonction', 'photo', 'est_un_compte'#, 'profession'
         ]
     
     def validate(self, attrs):
@@ -93,6 +92,13 @@ class EmployeCreateSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError("Ce CIN est déjà utilisé dans cette entreprise.")
         return value
+    
+    def create(self, validated_data):
+        profession = validated_data.pop('profession', None)  # Pop extra field
+        instance = super().create(validated_data)
+        if profession and validated_data.get('est_un_compte'):
+            compte = EmployeCompte.objects.create(employe=instance, profession=profession)
+        return instance
 
 class EmployeProfileUpdateSerializer(serializers.ModelSerializer):
     profession = serializers.PrimaryKeyRelatedField(queryset=Profession.objects.all(), required=False)
@@ -103,3 +109,21 @@ class EmployeProfileUpdateSerializer(serializers.ModelSerializer):
             'nom_complet', 'date_naissance', 'numero_telephone', 'adresse',
             'etat_civil', 'fonction', 'photo', 'profession'
         ]
+
+# Supprime ces lignes ou remplace par :
+class EmployeSerializer(serializers.ModelSerializer):
+    profession_data = ProfessionSerializer(read_only=True)
+    prefix_telephone_data = PrefixTelephoneSerializer(source='prefix_telephone', read_only=True)
+    photo_url = serializers.SerializerMethodField()
+    compte = EmployeCompteSerializer(read_only=True)
+    
+    class Meta:
+        model = Employe
+        fields = '__all__'  # ou liste explicite
+    
+    def get_photo_url(self, obj):
+        if getattr(obj, 'photo', None):
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.photo.url)
+        return None
