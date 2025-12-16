@@ -59,7 +59,10 @@ class ServiceSerializer(serializers.ModelSerializer):
 class EntrepriseSerializer(serializers.ModelSerializer):
     profile_url = serializers.SerializerMethodField()
     user_type = serializers.SerializerMethodField()
-    date_creation = serializers.SerializerMethodField()
+    date_creation = serializers.DateTimeField(
+        format="%d-%m-%Y",
+        help_text="Date de création de l'entreprise"
+    )
     services = serializers.ListField(
         child=serializers.CharField(max_length=100),
         write_only=True,
@@ -77,7 +80,7 @@ class EntrepriseSerializer(serializers.ModelSerializer):
             'date_creation', 'profile_url', 'prefix_telephone', 'numero_telephone', 'est_verifie',
             'est_actif', 'services', 'plan', 'user_type', 'type_entreprise'
         ]
-        read_only_fields = ['id', 'date_creation', 'est_verifie', 'user_type']
+        read_only_fields = ['id', 'est_verifie', 'user_type']
         extra_kwargs = {
             'mot_de_passe': {'write_only': True}
         }
@@ -88,10 +91,10 @@ class EntrepriseSerializer(serializers.ModelSerializer):
     def get_user_type(self, obj):
         return "ENTREPRISE"
 
-    def get_date_creation(self, obj):
-        if obj.date_creation:
-            return datetime.strftime(obj.date_creation, "%d-%m-%Y")
-        return None
+    # def get_date_creation(self, obj):
+    #     if obj.date_creation:
+    #         return datetime.strftime(obj.date_creation, "%d-%m-%Y")
+    #     return None
     
     def get_prefix_telephone(self, obj):
         return obj.prefix_telephone.prefix

@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/entreprises/', include('apps.entreprise.urls')),
     path('api/employes/', include('apps.employe.urls')),
     path('api/stockes/', include('apps.stock.urls')),
+    path('api/finances/', include('apps.finance.urls')),
     
     path('api/docs/', protected_swagger, name='schema-swagger-ui'),
     path('api/redoc/', protected_redoc, name='schema-redoc'),

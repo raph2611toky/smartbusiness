@@ -169,10 +169,10 @@ class StockCreateView(APIView):
 class StockDetailView(APIView):
     permission_classes = [IsAuthenticatedEntrepriseOrEmploye]
     
-    def get_object(self, pk):
+    def get_object(self, stock_id):
         entreprise = getattr(self.request, 'entreprise', self.request.employe.entreprise)
         try:
-            obj = Stock.objects.get(id=pk, entreprise=entreprise)
+            obj = Stock.objects.get(id=stock_id, entreprise=entreprise)
             return obj
         except Stock.DoesNotExist:
             raise Exception("Stock introuvable.")
@@ -185,9 +185,9 @@ class StockDetailView(APIView):
         },
         operation_description="Récupérer le détail d'un stock."
     )
-    def get(self, request, pk):
+    def get(self, request, stock_id):
         try:
-            stock = self.get_object(pk)
+            stock = self.get_object(stock_id)
             return Response({
                 "message": "Stock récupéré avec succès.",
                 "success": True,
@@ -204,10 +204,10 @@ class StockDetailView(APIView):
 class StockUpdateView(APIView):
     permission_classes = [IsAuthenticatedEntrepriseOrEmploye]
     
-    def get_object(self, pk):
+    def get_object(self, stock_id):
         entreprise = getattr(self.request, 'entreprise', self.request.employe.entreprise)
         try:
-            obj = Stock.objects.get(id=pk, entreprise=entreprise)
+            obj = Stock.objects.get(id=stock_id, entreprise=entreprise)
             return obj
         except Stock.DoesNotExist:
             raise Exception("Stock introuvable.")
@@ -231,9 +231,9 @@ class StockUpdateView(APIView):
         },
         operation_description="Mettre à jour un stock (+/- quantité avec quantite_delta)."
     )
-    def patch(self, request, pk):
+    def patch(self, request, stock_id):
         try:
-            stock = self.get_object(pk)
+            stock = self.get_object(stock_id)
             serializer = StockUpdateSerializer(stock, data=request.data, partial=True)
             
             if serializer.is_valid():
@@ -260,10 +260,10 @@ class StockUpdateView(APIView):
 class StockDeleteView(APIView):
     permission_classes = [IsAuthenticatedEntrepriseOrEmploye]
     
-    def get_object(self, pk):
+    def get_object(self, stock_id):
         entreprise = getattr(self.request, 'entreprise', self.request.employe.entreprise)
         try:
-            obj = Stock.objects.get(id=pk, entreprise=entreprise)
+            obj = Stock.objects.get(id=stock_id, entreprise=entreprise)
             return obj
         except Stock.DoesNotExist:
             raise Exception("Stock introuvable.")
@@ -276,9 +276,9 @@ class StockDeleteView(APIView):
         },
         operation_description="Supprimer un stock."
     )
-    def delete(self, request, pk):
+    def delete(self, request, stock_id):
         try:
-            stock = self.get_object(pk)
+            stock = self.get_object(stock_id)
             nom = stock.nom
             stock.delete()
             return Response({

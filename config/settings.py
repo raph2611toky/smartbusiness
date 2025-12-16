@@ -24,6 +24,7 @@ LOCAL_APPS = [
     'apps.entreprise.apps.EntrepriseConfig',
     'apps.employe.apps.EmployeConfig',
     'apps.stock.apps.StockConfig',
+    'apps.finance.apps.FinanceConfig',
 ]
 
 THIRD_APPS = [
