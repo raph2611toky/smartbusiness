@@ -41,15 +41,16 @@ class EmployeOtpSerializer(serializers.ModelSerializer):
 
 class EmployeListSerializer(serializers.ModelSerializer):
     profession_data = ProfessionSerializer(source='compte.profession', read_only=True)
-    prefix_telephone_data = PrefixTelephoneSerializer(source='prefix_telephone', read_only=True)
+    prefix_telephone = serializers.SerializerMethodField()
     photo_url = serializers.SerializerMethodField()
+    renumeration_devise = serializers.SerializerMethodField()
     
     class Meta:
         model = Employe
         fields = [
             'id', 'nom_complet', 'email', 'fonction', 'est_actif', 'est_verifie',
-            'est_un_compte', 'photo_url', 'profession_data', 'prefix_telephone_data',
-            'date_creation', 'date_embauche'
+            'est_un_compte', 'photo_url', 'profession_data', 'prefix_telephone',
+            'date_creation', 'date_embauche', 'renumeration_devise', 'renumeration'
         ]
     
     def get_photo_url(self, obj):
@@ -58,6 +59,12 @@ class EmployeListSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.photo.url)
         return None
+    
+    def get_renumeration_devise(self, obj):
+        return obj.renumeration_devise.nom_court
+    
+    def get_prefix_telephone(self, obj):
+        return obj.prefix_telephone.prefix
 
 class EmployeCreateSerializer(serializers.ModelSerializer):
     # profession = serializers.PrimaryKeyRelatedField(queryset=Profession.objects.all(), required=False)
@@ -101,14 +108,22 @@ class EmployeCreateSerializer(serializers.ModelSerializer):
         return instance
 
 class EmployeProfileUpdateSerializer(serializers.ModelSerializer):
+    renumeration_devise = serializers.SerializerMethodField()
     profession = serializers.PrimaryKeyRelatedField(queryset=Profession.objects.all(), required=False)
+    prefix_telephone = serializers.SerializerMethodField()
     
     class Meta:
         model = Employe
         fields = [
-            'nom_complet', 'date_naissance', 'numero_telephone', 'adresse',
-            'etat_civil', 'fonction', 'photo', 'profession'
+            'nom_complet', 'date_naissance', 'numero_telephone', 'prefix_telephone', 'adresse',
+            'etat_civil', 'fonction', 'photo', 'profession', "renumeration_devise", "renumeration"
         ]
+        
+    def get_renumeration_devise(self, obj):
+        return obj.renumeration_devise.nom_court
+    
+    def get_prefix_telephone(self, obj):
+        return obj.prefix_telephone.prefix
 
 # Supprime ces lignes ou remplace par :
 class EmployeSerializer(serializers.ModelSerializer):

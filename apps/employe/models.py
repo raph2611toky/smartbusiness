@@ -2,7 +2,7 @@
 from django.db import models
 from django.utils import timezone as django_timezone
 from django.contrib.auth.hashers import make_password
-from apps.entreprise.models import Entreprise, PrefixTelephone, default_created_at
+from apps.entreprise.models import Entreprise, PrefixTelephone, default_created_at, Devise
 
 class Acces(models.Model):
     titre = models.CharField(max_length=100, unique=True)
@@ -33,6 +33,8 @@ class Employe(models.Model):
     email = models.EmailField(unique=True)
     date_naissance = models.DateField(null=True, blank=True)
     cin = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    renumeration = models.BigIntegerField(default=0)
+    renumeration_devise = models.ForeignKey(Devise, on_delete=models.SET_DEFAULT, default=125)
     prefix_telephone = models.ForeignKey(
         PrefixTelephone, 
         on_delete=models.SET_NULL, 
