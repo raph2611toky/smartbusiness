@@ -152,3 +152,21 @@ class EntrepriseOutstandingTokenSerializer(serializers.ModelSerializer):
 
     def get_date_expiration(self, obj):
         return datetime.strftime(obj.date_expiration, "%d-%m-%Y %H:%M:%S")
+
+class EntrepriseUpdatePlanSerializer(serializers.Serializer):
+    plan = serializers.PrimaryKeyRelatedField(
+        queryset=Plan.objects.all(),
+        required=True,
+        error_messages={
+            'required': 'Le plan est requis.',
+            'does_not_exist': 'Ce plan n\'existe pas.',
+            'invalid': 'ID plan invalide.'
+        }
+    )
+
+    def validate_plan(self, value):
+        entreprise = self.context.get('entreprise')
+        if not entreprise:
+            raise serializers.ValidationError("Entreprise non trouvée.")
+        
+        return value

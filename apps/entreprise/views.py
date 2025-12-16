@@ -10,8 +10,8 @@ from drf_yasg import openapi
 from dotenv import load_dotenv
 
 from apps.entreprise.permissions import IsAuthenticatedEntreprise
-from apps.entreprise.serializers import EntrepriseSerializer, DeviseSerializer, PrefixTelephoneSerializer
-from apps.entreprise.models import Entreprise, Devise, PrefixTelephone
+from apps.entreprise.serializers import EntrepriseSerializer, DeviseSerializer, PrefixTelephoneSerializer, ServiceSerializer, PlanSerializer, EntrepriseUpdatePlanSerializer
+from apps.entreprise.models import Entreprise, Devise, PrefixTelephone, Service, Plan
 
 load_dotenv()
 
@@ -430,5 +430,201 @@ class EntrepriseProfileUpdateView(APIView):
                 'message': f"Erreur serveur: {str(e)}",
                 'success': False,
                 'donnees': {}
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ServiceListView(APIView):
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        tags=['Référence'],
+        responses={
+            200: openapi.Response('Liste services', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example="Liste des services récupérée avec succès."),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+                    'donnees': openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        items=openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                'id': openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+                                'titre': openapi.Schema(type=openapi.TYPE_STRING, example="Service de comptabilité")
+                            }
+                        )
+                    )
+                }
+            )),
+            500: openapi.Response('Erreur serveur', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=False),
+                    'donnees': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            ))
+        },
+        operation_description="Lister tous les services disponibles (référence pour les employés)."
+    )
+    def get(self, request):
+        try:
+            services = Service.objects.all().order_by('titre')
+            serializer = ServiceSerializer(services, many=True)
+            return Response({
+                "message": "Liste des services récupérée avec succès.",
+                "success": True,
+                "donnees": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "message": f"Erreur serveur: {str(e)}",
+                "success": False,
+                "donnees": {}
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PlanListView(APIView):
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        tags=['Référence'],
+        responses={
+            200: openapi.Response('Liste plans', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example="Liste des plans récupérée avec succès."),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+                    'donnees': openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        items=openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                'id': openapi.Schema(type=openapi.TYPE_INTEGER, example=1),
+                                'nom': openapi.Schema(type=openapi.TYPE_STRING, example="Freemium"),
+                                'description': openapi.Schema(type=openapi.TYPE_STRING, example="Plan gratuit avec fonctionnalités de base", nullable=True),
+                                'prix': openapi.Schema(type=openapi.TYPE_NUMBER, example="0.00"),
+                                'devise': openapi.Schema(type=openapi.TYPE_INTEGER, example=1, nullable=True)
+                            }
+                        )
+                    )
+                }
+            )),
+            500: openapi.Response('Erreur serveur', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=False),
+                    'donnees': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            ))
+        },
+        operation_description="Lister tous les plans disponibles (référence pour les employés)."
+    )
+    def get(self, request):
+        try:
+            plans = Plan.objects.all().order_by('nom')
+            serializer = PlanSerializer(plans, many=True)
+            return Response({
+                "message": "Liste des plans récupérée avec succès.",
+                "success": True,
+                "donnees": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "message": f"Erreur serveur: {str(e)}",
+                "success": False,
+                "donnees": {}
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class EntrepriseUpdatePlanView(APIView):
+    permission_classes = [IsAuthenticatedEntreprise]
+
+    @swagger_auto_schema(
+        tags=['Entreprise'],
+        request_body=openapi.Schema(
+            description="Mis à jour de plan",
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "plan":openapi.Schema(type=openapi.TYPE_INTEGER, example="1")
+            }
+        ),
+        responses={
+            200: openapi.Response('Plan mis à jour', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING, example="Plan mis à jour avec succès."),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=True),
+                    'donnees': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'ancien_plan': openapi.Schema(type=openapi.TYPE_STRING, example="Freemium"),
+                            'nouveau_plan': openapi.Schema(type=openapi.TYPE_STRING, example="Pro"),
+                            'entreprise_id': openapi.Schema(type=openapi.TYPE_INTEGER, example=1)
+                        }
+                    )
+                }
+            )),
+            400: openapi.Response('Plan invalide', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=False),
+                    'donnees': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            )),
+            401: openapi.Response('Non authentifié', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=False),
+                    'donnees': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            )),
+            500: openapi.Response('Erreur serveur', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING),
+                    'success': openapi.Schema(type=openapi.TYPE_BOOLEAN, example=False),
+                    'donnees': openapi.Schema(type=openapi.TYPE_OBJECT)
+                }
+            ))
+        },
+        operation_description="Mettre à jour UNIQUEMENT le plan de l'entreprise connectée (PATCH/PUT)."
+    )
+    def put(self, request):
+        try:
+            serializer = EntrepriseUpdatePlanSerializer(
+                data=request.data, 
+                context={'entreprise': request.entreprise}
+            )
+            
+            if serializer.is_valid():
+                ancien_plan = request.entreprise.plan.nom if request.entreprise.plan else None
+                nouveau_plan = serializer.validated_data['plan']
+                
+                # Mise à jour
+                request.entreprise.plan = nouveau_plan
+                request.entreprise.save()
+                
+                return Response({
+                    "message": "Plan mis à jour avec succès.",
+                    "success": True,
+                    "donnees": {
+                        'ancien_plan': ancien_plan,
+                        'nouveau_plan': nouveau_plan.nom,
+                        'entreprise_id': request.entreprise.id
+                    }
+                }, status=status.HTTP_200_OK)
+            
+            return Response({
+                "message": "Données invalides.",
+                "success": False,
+                "donnees": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({
+                "message": f"Erreur serveur: {str(e)}",
+                "success": False,
+                "donnees": {}
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

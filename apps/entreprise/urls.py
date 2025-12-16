@@ -27,5 +27,7 @@ urlpatterns = [
     # 🏢 Profil Entreprise (Authentifié)
     path('profile/', views.EntrepriseProfileView.as_view(), name='profile'),
     path('profile/update/', views.EntrepriseProfileUpdateView.as_view(), name='profile_update'),
-    
+    path('services/liste/', views.ServiceListView.as_view(), name='service-list'),
+    path('plans/liste/', views.PlanListView.as_view(), name='plan-list'),
+    path('plan/update/', views.EntrepriseUpdatePlanView.as_view(), name='entreprise-update-plan'),
 ]
